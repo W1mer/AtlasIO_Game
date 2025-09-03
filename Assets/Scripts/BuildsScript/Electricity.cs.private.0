@@ -3,10 +3,8 @@ using UnityEngine;
 public class Electricity : BuildingInstance
 {
     [SerializeField] private GameObject asphalt;
-    private BoxCollider boxCollider;
     void Awake()
     {
-        boxCollider = GetComponent<BoxCollider>();
         if (transform.childCount > 1)
             if (transform.GetChild(1).TryGetComponent<Animator>(out Animator T) == false)
                 asphalt = transform.GetChild(1).gameObject;
@@ -15,7 +13,6 @@ public class Electricity : BuildingInstance
     {
         base.Start();
         UpdateModel();
-        boxCollider.enabled = true;
     }
     private void UpdateModel()
     {

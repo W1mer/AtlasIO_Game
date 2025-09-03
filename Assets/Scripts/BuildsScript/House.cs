@@ -3,15 +3,20 @@ using UnityEngine;
 
 public class House : BuildingInstance
 {
+
     [SerializeField] private GameObject asphalt;
+    private BoxCollider boxCollider;
     void Awake()
     {
+        boxCollider = GetComponent<BoxCollider>();
+
         asphalt = transform.GetChild(3).gameObject;
     }
     public override void Start()
     {
         base.Start();
         UpdateModel();
+        boxCollider.enabled = true;
     }
 
     public override void OnUpgrade()

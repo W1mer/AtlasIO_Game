@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class BuildingInstance : MonoBehaviour
 {
@@ -71,6 +70,10 @@ public class BuildingInstance : MonoBehaviour
             }
 
             //baseData.upgradeLevels[currentLevel].minings[0].last_amount = baseData.upgradeLevels[currentLevel].minings[0].amount;
+        }
+        else
+        {
+            GetComponent<BoxCollider>().enabled = false;
         }
     }
 

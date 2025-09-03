@@ -3,18 +3,14 @@ using UnityEngine;
 public class Factory : BuildingInstance
 {
     [SerializeField] private GameObject asphalt;
-    private BoxCollider boxCollider;
     void Awake()
     {
-        boxCollider = GetComponent<BoxCollider>();
-
         asphalt = transform.GetChild(1).gameObject;
     }
     public override void Start()
     {
         base.Start();
         UpdateModel();
-        boxCollider.enabled = true;
     }
     private void UpdateModel()
     {

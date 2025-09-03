@@ -3,19 +3,17 @@ using UnityEngine.InputSystem;
 
 public class PinchZoomCamera : MonoBehaviour
 {
-    [SerializeField] private Camera cam;
-    [SerializeField] private float zoomSpeed = 0.5f;
-    [SerializeField] private float minZoom = 2.5f;
-    [SerializeField] private float maxZoom = 10f;
-    [SerializeField] private float smoothSpeed = 0.2f;
+    public Camera cam;
+    public float zoomSpeed = 0.5f;
+    public float minZoom = 2.5f;
+    public float maxZoom = 10f;
+    public float smoothSpeed = 0.2f;
 
-    [SerializeField] private CameraController cameraController;
+    public CameraController cameraController;
 
     private float targetZoomLevel;
     private float zoomVelocity = 0f;
-
     private float? forcedZoomTarget = null;
-
     private float lastTouchDistance = -1f;
 
     private void Start()
@@ -24,8 +22,6 @@ public class PinchZoomCamera : MonoBehaviour
         if (cameraController == null) cameraController = GetComponent<CameraController>();
 
         targetZoomLevel = cam.orthographicSize;
-        smoothSpeed = 0.3f;
-        zoomSpeed = 0.5f;
     }
 
     private void Update()
@@ -35,12 +31,10 @@ public class PinchZoomCamera : MonoBehaviour
         if (!cameraController.CanZoom && !forcedZoomTarget.HasValue)
             return;
 
-        // Приоритет — форсированный зум через MoveZoomTo
         if (forcedZoomTarget.HasValue)
         {
             SetTargetZoom(forcedZoomTarget.Value);
 
-            // Если почти достигли цели — зафиксировать
             if (Mathf.Abs(cam.orthographicSize - forcedZoomTarget.Value) < 0.01f)
             {
                 cam.orthographicSize = forcedZoomTarget.Value;
@@ -80,7 +74,10 @@ public class PinchZoomCamera : MonoBehaviour
     private void HandleTouchPinchZoom()
     {
         if (Touchscreen.current == null || Touchscreen.current.touches.Count < 2)
+        {
+            lastTouchDistance = -1f;
             return;
+        }
 
         var touch0 = Touchscreen.current.touches[0];
         var touch1 = Touchscreen.current.touches[1];
@@ -113,14 +110,6 @@ public class PinchZoomCamera : MonoBehaviour
     public void MoveZoomTo(float size)
     {
         forcedZoomTarget = Mathf.Clamp(size, minZoom, maxZoom);
-    }
-
-    public void SetZoomLevel(float newZoom)
-    {
-        forcedZoomTarget = null;
-        SetTargetZoom(newZoom);
-        cam.orthographicSize = targetZoomLevel;
-        zoomVelocity = 0f;
     }
 
     public float GetCurrentZoomLevel()

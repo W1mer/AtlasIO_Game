@@ -6,38 +6,35 @@ using System.Collections.Generic;
 public class CameraController : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 3f;
+    public float baseMoveSpeed = 9f;
+    public float minMoveSpeed = 2f;
 
     [Header("Touch Settings")]
     public float touchSensitivity = 0.01f;
     private Vector2 lastTouchPos;
-    private bool isTouching;
+    private int lastFingerId = -1;
 
     private float minX = -50f, maxX = 50f, minZ = -50f, maxZ = 50f;
 
-
     [Header("Target Follow")]
-    public float followSpeed = 5f; // скорость движения к цели
-    private Vector3? targetPosition = null; // null — нет цели
+    public float followSpeed = 5f;
+    private Vector3? targetPosition = null;
     private float targetSize = 4f;
 
     private Camera cam;
-
-    public bool CanMove;
-    public bool CanZoom;
+    public bool CanMove = true;
+    public bool CanZoom = true;
 
     [Header("References")]
-    public PinchZoomCamera pinchZoomCamera; // ссылка на твой скрипт зума
+    public PinchZoomCamera pinchZoomCamera;
 
     private void Start()
     {
-        touchSensitivity = 0.01f;
-        moveSpeed = 3f;
-
-        CanMove = true;
-        CanZoom = true;
         cam = GetComponentInChildren<Camera>();
         pinchZoomCamera = GetComponent<PinchZoomCamera>();
+
+        baseMoveSpeed = 9f;
+        minMoveSpeed = 2f;
     }
 
     private void Update()
@@ -51,6 +48,21 @@ public class CameraController : MonoBehaviour
         HandleSmoothMoveToTarget();
     }
 
+    private float GetAdaptiveMoveSpeed()
+    {
+        if (pinchZoomCamera == null || cam == null)
+            return baseMoveSpeed;
+
+        float zoomFactor = Mathf.InverseLerp(
+            pinchZoomCamera.minZoom,
+            pinchZoomCamera.maxZoom,
+            cam.orthographicSize
+        );
+
+        // При ближнем зуме скорость → minMoveSpeed, при дальнем → baseMoveSpeed
+        return Mathf.Lerp(minMoveSpeed, baseMoveSpeed, zoomFactor);
+    }
+
     private void HandleKeyboardInput()
     {
         Vector3 input = Vector3.zero;
@@ -60,99 +72,61 @@ public class CameraController : MonoBehaviour
         if (Keyboard.current.aKey.isPressed) input += Vector3.left;
         if (Keyboard.current.dKey.isPressed) input += Vector3.right;
 
-        Vector3 movement = input.normalized * moveSpeed * Time.deltaTime;
+        Vector3 movement = input.normalized * GetAdaptiveMoveSpeed() * Time.deltaTime;
         Vector3 targetPos = transform.position + transform.TransformDirection(movement);
 
-        // Ограничение по x и z
         targetPos.x = Mathf.Clamp(targetPos.x, minX, maxX);
         targetPos.z = Mathf.Clamp(targetPos.z, minZ, maxZ);
 
         transform.position = targetPos;
-
     }
-
-    public void SwitchRegion(Vector3 newPosition, Vector2 xLimits, Vector2 zLimits)
-    {
-        targetPosition = newPosition;
-
-        minX = xLimits.x;
-        maxX = xLimits.y;
-        minZ = zLimits.x;
-        maxZ = zLimits.y;
-
-        CanMove = true;
-        CanZoom = true;
-
-        // Можно задать и дефолтный зум, если нужно:
-        if (pinchZoomCamera != null)
-        {
-            pinchZoomCamera.MoveZoomTo(4f);
-        }
-    }
-
-    private void ChangeLimit()
-    {
-        
-    }
-
 
     private void HandleTouchInput()
     {
         if (Touchscreen.current == null) return;
 
-        int activeTouchCount = 0;
-        if (Touchscreen.current.primaryTouch.press.isPressed) activeTouchCount++;
-
-        if (Touchscreen.current.touches.Count > 1 && Touchscreen.current.touches[1].press.isPressed)
+        if (Touchscreen.current.touches.Count != 1) // только один палец
         {
-            activeTouchCount++;
-        }
-
-        if (activeTouchCount > 1)
-        {
-            isTouching = false;
+            lastFingerId = -1;
             return;
         }
 
-        if (Touchscreen.current.primaryTouch.press.isPressed)
+        var touch = Touchscreen.current.primaryTouch;
+
+        if (!touch.press.isPressed)
         {
-            Vector2 touchPos = Touchscreen.current.primaryTouch.position.ReadValue();
-
-            if (IsTouchOverUI(touchPos))
-            {
-                isTouching = false;
-                return;
-            }
-
-            if (!isTouching)
-            {
-                isTouching = true;
-                lastTouchPos = touchPos;
-            }
-            else
-            {
-                Vector2 delta = touchPos - lastTouchPos;
-                if (delta.magnitude < 1f) return;
-
-                lastTouchPos = touchPos;
-
-                Vector3 move = new Vector3(-delta.x, 0f, -delta.y) * touchSensitivity;
-                transform.Translate(move, Space.Self);
-
-                // Ограничение позиции камеры после перемещения
-                Vector3 clampedPos = transform.position;
-                clampedPos.x = Mathf.Clamp(clampedPos.x, minX, maxX);
-                clampedPos.z = Mathf.Clamp(clampedPos.z, minZ, maxZ);
-                transform.position = clampedPos;
-            }
+            lastFingerId = -1;
+            return;
         }
-        else
+
+        Vector2 touchPos = touch.position.ReadValue();
+
+        if (IsTouchOverUI(touchPos))
         {
-            isTouching = false;
+            lastFingerId = -1;
+            return;
         }
+
+        if (lastFingerId != touch.touchId.ReadValue())
+        {
+            lastFingerId = touch.touchId.ReadValue();
+            lastTouchPos = touchPos;
+            return;
+        }
+
+        Vector2 delta = touchPos - lastTouchPos;
+        lastTouchPos = touchPos;
+
+        if (delta.sqrMagnitude < 1f) return;
+
+        Vector3 move = new Vector3(-delta.x, 0f, -delta.y) * touchSensitivity * GetAdaptiveMoveSpeed();
+        transform.Translate(move, Space.Self);
+
+        Vector3 clampedPos = transform.position;
+        clampedPos.x = Mathf.Clamp(clampedPos.x, minX, maxX);
+        clampedPos.z = Mathf.Clamp(clampedPos.z, minZ, maxZ);
+        transform.position = clampedPos;
     }
-
-
 
     private bool IsTouchOverUI(Vector2 touchPosition)
     {
@@ -167,9 +141,7 @@ public class CameraController : MonoBehaviour
         foreach (var result in results)
         {
             if (result.gameObject.TryGetComponent<CanvasRenderer>(out _))
-            {
                 return true;
-            }
         }
 
         return false;
@@ -189,7 +161,22 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    // Метод для перемещения камеры к зданию и установки зума
+    public void SwitchRegion(Vector3 newPosition, Vector2 xLimits, Vector2 zLimits)
+    {
+        targetPosition = newPosition;
+
+        minX = xLimits.x;
+        maxX = xLimits.y;
+        minZ = zLimits.x;
+        maxZ = zLimits.y;
+
+        CanMove = true;
+        CanZoom = true;
+
+        if (pinchZoomCamera != null)
+            pinchZoomCamera.MoveZoomTo(4f);
+    }
+
     public void MoveToTarget(Vector3 buildingPosition)
     {
         float height = 10f;
@@ -200,11 +187,8 @@ public class CameraController : MonoBehaviour
 
         targetSize = 2.5f;
 
-        // Плавно меняем зум через скрипт зума
         if (pinchZoomCamera != null)
-        {
             pinchZoomCamera.MoveZoomTo(targetSize);
-        }
 
         CanMove = false;
         CanZoom = false;
@@ -215,10 +199,7 @@ public class CameraController : MonoBehaviour
         CanMove = true;
         CanZoom = true;
 
-        // При возврате контроля — сбросить зум к дефолту
         if (pinchZoomCamera != null)
-        {
             pinchZoomCamera.MoveZoomTo(4f);
-        }
     }
 }
