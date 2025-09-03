@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78e86c0df44e6ad4484fe501af80006c, type: 3}
+  m_Name: StoneMine
+  m_EditorClassIdentifier: 
+  TypeNumber: 2
+  upgradeLevels:
+  - levelName: 0
+    cost:
+    - resourceType: {fileID: 11400000, guid: 503ba39d2e533274b8d0b96908a5f324, type: 2}
+      amount: 15
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 88435d1ea74bd4f4ca8378e8a24675e1, type: 2}
+      amount: 20
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 20
+      lastAmount: 0
+    minings: []
+    expenses: []
+    electricityConsumption: []
+  - levelName: 1
+    cost:
+    - resourceType: {fileID: 11400000, guid: 503ba39d2e533274b8d0b96908a5f324, type: 2}
+      amount: 15
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 88435d1ea74bd4f4ca8378e8a24675e1, type: 2}
+      amount: 20
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 20
+      lastAmount: 0
+    minings:
+    - resourceType: {fileID: 11400000, guid: 503ba39d2e533274b8d0b96908a5f324, type: 2}
+      amount: 5
+      lastAmount: 5
+    expenses:
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 0
+      lastAmount: 0
+    electricityConsumption:
+    - resourceType: {fileID: 11400000, guid: c62a2f8c925432442a0ad60fde947216, type: 2}
+      amount: -3
+      lastAmount: 0
+  - levelName: 2
+    cost:
+    - resourceType: {fileID: 11400000, guid: 503ba39d2e533274b8d0b96908a5f324, type: 2}
+      amount: 23
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 88435d1ea74bd4f4ca8378e8a24675e1, type: 2}
+      amount: 25
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 7f8e454156f5e0744bf1959650f083b0, type: 2}
+      amount: 15
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 465ad803091c32249b524bc9b39a110c, type: 2}
+      amount: 15
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 01cbb8316b9deee46a7d8d96346e6bc4, type: 2}
+      amount: 1
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 85
+      lastAmount: 0
+    minings:
+    - resourceType: {fileID: 11400000, guid: 503ba39d2e533274b8d0b96908a5f324, type: 2}
+      amount: 10
+      lastAmount: 10
+    expenses:
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 0
+      lastAmount: 0
+    electricityConsumption:
+    - resourceType: {fileID: 11400000, guid: c62a2f8c925432442a0ad60fde947216, type: 2}
+      amount: -5
+      lastAmount: 0
+  - levelName: 3
+    cost:
+    - resourceType: {fileID: 11400000, guid: 503ba39d2e533274b8d0b96908a5f324, type: 2}
+      amount: 41
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 88435d1ea74bd4f4ca8378e8a24675e1, type: 2}
+      amount: 43
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 7f8e454156f5e0744bf1959650f083b0, type: 2}
+      amount: 38
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 465ad803091c32249b524bc9b39a110c, type: 2}
+      amount: 38
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: a7d8d5917ba0d994581fbba2412af8bd, type: 2}
+      amount: 30
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 8eaf3f8f7976bb340b41c551040272f3, type: 2}
+      amount: 30
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: 01cbb8316b9deee46a7d8d96346e6bc4, type: 2}
+      amount: 5
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: b8dcc767ca8a54946945183aacc346ed, type: 2}
+      amount: 3
+      lastAmount: 0
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 143
+      lastAmount: 0
+    minings:
+    - resourceType: {fileID: 11400000, guid: 503ba39d2e533274b8d0b96908a5f324, type: 2}
+      amount: 15
+      lastAmount: 15
+    expenses:
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 0
+      lastAmount: 0
+    electricityConsumption:
+    - resourceType: {fileID: 11400000, guid: c62a2f8c925432442a0ad60fde947216, type: 2}
+      amount: -8
+      lastAmount: 0

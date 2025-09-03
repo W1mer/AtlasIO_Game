@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78e86c0df44e6ad4484fe501af80006c, type: 3}
+  m_Name: Solar panel
+  m_EditorClassIdentifier: 
+  TypeNumber: 12
+  upgradeLevels:
+  - levelName: 0
+    cost:
+    - resourceType: {fileID: 11400000, guid: 503ba39d2e533274b8d0b96908a5f324, type: 2}
+      amount: 20
+    - resourceType: {fileID: 11400000, guid: 88435d1ea74bd4f4ca8378e8a24675e1, type: 2}
+      amount: 30
+    - resourceType: {fileID: 11400000, guid: 7f8e454156f5e0744bf1959650f083b0, type: 2}
+      amount: 20
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 30
+    minings: []
+    expenses: []
+    electricityConsumption: []
+  - levelName: 1
+    cost:
+    - resourceType: {fileID: 11400000, guid: 503ba39d2e533274b8d0b96908a5f324, type: 2}
+      amount: 20
+    - resourceType: {fileID: 11400000, guid: 88435d1ea74bd4f4ca8378e8a24675e1, type: 2}
+      amount: 30
+    - resourceType: {fileID: 11400000, guid: 7f8e454156f5e0744bf1959650f083b0, type: 2}
+      amount: 20
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 30
+    minings:
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 0
+    expenses:
+    - resourceType: {fileID: 11400000, guid: e861c15bc32426549adcbb4444e284d2, type: 2}
+      amount: 0
+    electricityConsumption:
+    - resourceType: {fileID: 11400000, guid: c62a2f8c925432442a0ad60fde947216, type: 2}
+      amount: 10
