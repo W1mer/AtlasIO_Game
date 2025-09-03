@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ResourceDeposits : MonoBehaviour
 {
-    public int Id; // Присваивается в инспекторе или из кода
+    public int Id;
     public bool IsDiscovered { get; private set; } = false;
 
     private void Start()
@@ -29,7 +29,7 @@ public class ResourceDeposits : MonoBehaviour
             IsDiscovered = true;
             gameObject.SetActive(true);
             
-            ResourceDepositManager.Instance.SaveDeposits(); // Сохраняем централизованно
+            ResourceDepositManager.Instance.SaveDeposits();
         }
     }
 
