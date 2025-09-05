@@ -1,10 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class BuildingPlacer : MonoBehaviour
 {
     [SerializeField] private BuildingInstance selectedBuildingPrefab;
-    [SerializeField] private ConfirationTest infoUi;
+    [SerializeField] private ResourceDisplay infoUi;
     [SerializeField] private Material phantomMaterial;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private SaveManager saveManager;
@@ -23,6 +24,8 @@ public class BuildingPlacer : MonoBehaviour
     public static BuildingPlacer Instance;
     public GameObject CurrentBuilding { get; private set; }
     public bool IsDragging { get; private set; }
+
+    public event Action<BuildingInstance> OnStartDragging;
 
     void Awake()
     {
@@ -70,20 +73,18 @@ public class BuildingPlacer : MonoBehaviour
     {
         if (selectedBuildingPrefab == null) return;
 
+
         CurrentBuilding = Instantiate(selectedBuildingPrefab.gameObject);
 
         BuildingInstance instance = selectedBuildingPrefab.GetComponent<BuildingInstance>();
 
+        OnStartDragging?.Invoke(instance);
+
         instance.GetComponent<BoxCollider>().enabled = false;
 
         ApplyPhantomMaterial(CurrentBuilding);
+
         IsDragging = true;
-
-        infoUi.gameObject.SetActive(true);
-
-        infoUi.ResourceDisplay.buildingInstace = instance;
-
-        infoUi.ResourceDisplay.ShowCost();
 
         targetPosition = CurrentBuilding.transform.position;
         velocity = Vector3.zero;

@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour
     public float moveSpeed = 3f;
 
     [Header("Touch Settings")]
-    public float touchSensitivity = 0.01f;
+    public float touchSensitivity = 0.1f;
     private Vector2 lastTouchPos;
     private bool isTouching;
 
@@ -18,7 +18,7 @@ public class CameraController : MonoBehaviour
 
     [Header("Target Follow")]
     public float followSpeed = 5f; // скорость движения к цели
-    private Vector3? targetPosition = null; // null — нет цели
+    private Vector3? targetPosition = null;
     private float targetSize = 4f;
 
     private Camera cam;
@@ -27,7 +27,7 @@ public class CameraController : MonoBehaviour
     public bool CanZoom;
 
     [Header("References")]
-    public PinchZoomCamera pinchZoomCamera; // ссылка на твой скрипт зума
+    public PinchZoomCamera pinchZoomCamera;
 
     private void Start()
     {
@@ -132,7 +132,7 @@ public class CameraController : MonoBehaviour
             else
             {
                 Vector2 delta = touchPos - lastTouchPos;
-                if (delta.magnitude < 1f) return;
+                if (delta.magnitude < 0.2f) return;
 
                 lastTouchPos = touchPos;
 
