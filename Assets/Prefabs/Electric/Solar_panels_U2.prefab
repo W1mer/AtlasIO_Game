@@ -93,7 +93,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -114,7 +114,7 @@ MonoBehaviour:
   electricityIndicator: {fileID: 0}
   animator: {fileID: 0}
   baseData: {fileID: 11400000, guid: c24961b7ec93b1e46a75a9a5304ed179, type: 2}
-  continent: {fileID: 0}
+  continentBuilded: {fileID: 0}
   hexIndex: 0
   requireSpecificResource: 0
   requiredResourceType: {fileID: 0}
