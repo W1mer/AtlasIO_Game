@@ -4,29 +4,12 @@ using System.Text;
 
 public class ResourceDisplay : MonoBehaviour
 {
-    [SerializeField] private BuildingPlacer buildingPlacer;
-    [SerializeField] private GameObject buildPanel;
-    [SerializeField] private ResourceManager resourceManager;
     public TextMeshProUGUI costText;
+    public BuildingInstance buildingInstace;
+    private ResourceManager resourceManager;
 
-    private void Awake()
+    public void ShowCost()
     {
-        //resourceManager = ResourceManager.Instance;
-        //buildingPlacer = BuildingPlacer.Instance;
-    }
-    void OnEnable()
-    {
-        buildingPlacer.OnStartDragging += ShowCost;
-    }
-    void OnDisable()
-    {
-        buildingPlacer.OnStartDragging -= ShowCost;
-    }
-
-    public void ShowCost(BuildingInstance buildingInstace)
-    {
-        buildPanel.SetActive(true);
-
         if (buildingInstace == null || costText == null)
         {
             Debug.LogWarning("Не назначен instance или costText");
@@ -73,5 +56,12 @@ public class ResourceDisplay : MonoBehaviour
         string iconTag = $"<sprite name=\"{resourceData.resourceName.ToLower()}\">";
 
         sb.Append($"{iconTag} x{playerAmount}\n");
+    }
+
+
+
+    private void Awake()
+    {
+        resourceManager = ResourceManager.Instance;
     }
 }

@@ -4,15 +4,37 @@ using UnityEngine.InputSystem;
 
 public class BuildingPlacer : MonoBehaviour
 {
+<<<<<<< HEAD
     BuildingInstance building;
     RaycastHit hitToPlaycer;
+=======
+    [SerializeField] private BuildingInstance selectedBuildingPrefab;
+    [SerializeField] private ConfirationTest infoUi;
+    [SerializeField] private Material phantomMaterial;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private SaveManager saveManager;
+    [SerializeField] private ResourceTag resourceTag;
+>>>>>>> parent of 3261d7a (added Even OnDragging)
 
     BuildingPlacer Instance;
 
     ResourceTag resourceChoosed;
     HexagonMain hexChoosed;
 
+<<<<<<< HEAD
     private void Awake()
+=======
+
+    private Vector3 targetPosition;
+    private Vector3 velocity = Vector3.zero; // вспомогательная переменная для SmoothDamp
+    private float smoothTime = 0.14f; // время сглаживания движения
+
+    public static BuildingPlacer Instance;
+    public GameObject CurrentBuilding { get; private set; }
+    public bool IsDragging { get; private set; }
+
+    void Awake()
+>>>>>>> parent of 3261d7a (added Even OnDragging)
     {
         if (Instance != null && Instance != this)
         {
@@ -36,10 +58,32 @@ public class BuildingPlacer : MonoBehaviour
 
     private void ConfrimPlacment()
     {
+<<<<<<< HEAD
         if (CanPlaceOnHex(hexChoosed, resourceChoosed))
         {
             
         }
+=======
+        if (selectedBuildingPrefab == null) return;
+
+        CurrentBuilding = Instantiate(selectedBuildingPrefab.gameObject);
+
+        BuildingInstance instance = selectedBuildingPrefab.GetComponent<BuildingInstance>();
+
+        instance.GetComponent<BoxCollider>().enabled = false;
+
+        ApplyPhantomMaterial(CurrentBuilding);
+        IsDragging = true;
+
+        infoUi.gameObject.SetActive(true);
+
+        infoUi.ResourceDisplay.buildingInstace = instance;
+
+        infoUi.ResourceDisplay.ShowCost();
+
+        targetPosition = CurrentBuilding.transform.position;
+        velocity = Vector3.zero;
+>>>>>>> parent of 3261d7a (added Even OnDragging)
     }
 
     private void CancelPlacment()

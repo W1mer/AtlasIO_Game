@@ -14,9 +14,10 @@ public class UpgradeUIManager : MonoBehaviour
         upgradePanel.SetActive(true);
 
         currentInstance = instance;
+        resourceDisplay.buildingInstace = instance;
         resourceManager = ResourceManager.Instance;
 
-        resourceDisplay.ShowCost(instance);
+        resourceDisplay.ShowCost();
 
         Debug.Log("Открыл Юа для апргрейда");
     }
@@ -35,7 +36,7 @@ public class UpgradeUIManager : MonoBehaviour
             resourceManager.SubtrElectricityConsumption(currentInstance.GetElectricityConsumption());
             currentInstance.Upgrade();
             resourceManager.SumElectricityConsumption(currentInstance.GetElectricityConsumption());
-            resourceDisplay.ShowCost(currentInstance); // обновить цену
+            resourceDisplay.ShowCost(); // обновить цену
         }
     }
 
