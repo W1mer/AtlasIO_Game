@@ -5,17 +5,19 @@ public class SurfaceScanner : BuildingInstance
 {
     public override void OnDayEnd()
     {
-        foreach (var continent in resourceDepositManager.DepositsOnContinentCopy)
+        foreach(var continent in resourceDepositManager.DepositsOnContinentCopy)
         {
-
-            for (int i = 0; i < continent.deposits.Count; i++)
+            if (continent.continent == resourceManager.CurrentContinent && continentBuilded == resourceManager.CurrentContinent)
             {
-                if (continent.deposits[i].IsDiscovered == false)
+                for (int i = 0; i < continent.deposits.Count; i++)
                 {
-                    continent.deposits[i].Discover();
-                    return;
+                    if (continent.deposits[i].IsDiscovered == false)
+                    {
+                        continent.deposits[i].Discover();
+                        return;
+                    }
+                    continue;
                 }
-                continue;
             }
         }
             
