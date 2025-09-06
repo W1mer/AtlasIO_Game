@@ -213,7 +213,6 @@ public class BuildingPlacer : MonoBehaviour
         {
             building.hexIndex = currentHexagon.Index;
             building.currentLevel = 1;
-            building.continentBuilded = resourceManager.CurrentContinent;
 
             // Добавляем в список зданий SaveManager
             if (saveManager != null)

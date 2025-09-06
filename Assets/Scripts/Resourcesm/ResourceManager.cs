@@ -14,21 +14,14 @@ public class ResourceManager : MonoBehaviour
         public int amount;
     }
 
-    [SerializeField] private int currentContinentId = -1;
-    [SerializeField] public ContinentData CurrentContinent { get; private set; }
-
     [SerializeField] private List<BuildingInstance> allBuildingsOnMap = new();
     [SerializeField] private List<ResourceEntry> resources = new();
     [SerializeField] private TextMeshProUGUI electricityText;
     [SerializeField] private TextMeshProUGUI dayTimerText;
 
-    [SerializeField]
-    private float dayTiming = 5f;
+    [SerializeField] private float dayTiming = 5f;
 
-    private Dictionary<int, Dictionary<ResourceData, int>> resourceDictionary = new();
-    private Dictionary<int, List<BuildingInstance>> continentBuildings = new();
-    private List<BuildingInstance> currentContinentBuildings = new List<BuildingInstance>();
-    private CameraController cameraController;
+    private Dictionary<ResourceData, int> ActiveDict = new();
     public int electricityConsumptionMain;
     public int electricityMain;
 
@@ -46,17 +39,10 @@ public class ResourceManager : MonoBehaviour
 
         InitializeDictionary();
         LoadResources();
-
-        cameraController = FindAnyObjectByType<CameraController>();
     }
 
     private void Start()
     {
-        if (ContinentDatabase.Instance != null && ContinentDatabase.Instance.ContinentsCopy.Count > 0)
-        {
-            SwitchContinent(ContinentDatabase.Instance.ContinentsCopy[0]);
-        }
-
         dayTiming = 60;
 
         CheckAllBuildingsOnMap();
@@ -64,7 +50,6 @@ public class ResourceManager : MonoBehaviour
         StartCoroutine(DayCycle());
         StartCoroutine(DayTimer());
         UpdateElectricityShow();
-
     }
 
     private void InitializeDictionary()
@@ -86,39 +71,55 @@ public class ResourceManager : MonoBehaviour
 
             try
             {
+                List<BuildingInstance> workingBuildings = new();
                 int localElectricity = electricityMain;
 
-                foreach (var building in continentBuildings[currentContinentId])
+                // 1. Проверяем здания
+                foreach (var building in allBuildingsOnMap)
                 {
                     if (building == null) continue;
 
-                    int buildElectricityConsumption = building.GetElectricityConsumption();
+                    int consumption = building.GetElectricityConsumption();
 
-                    if (buildElectricityConsumption > 0)
-                        buildElectricityConsumption = 0;
-
-                    if (localElectricity >= -buildElectricityConsumption)
-                    {
-                        localElectricity += buildElectricityConsumption;
-
-                        int amount = building.GetResourceAmountMainingPerCycle();
-                        ResourceData resource = building.GetResourceMaining();
-
-                        if (resource != null)
-                        {
-                            AddResource(resource, amount);
-                            Debug.Log($"{building.baseData.name} добыл: {amount} {resource.name}");
-                        }
-
-                        building.OnDayEnd();
-
-                        building.SetElectricityIndicatorState(false);
-                    }
-                    else
+                    if (localElectricity < -consumption)
                     {
                         building.SetElectricityIndicatorState(true);
-                        Debug.Log("Не хватает электричества");
+                        continue;
                     }
+
+                    var expenses = building.baseData.upgradeLevels[building.currentLevel].expenses;
+                    if (!CanSpendResources(expenses))
+                    {
+                        building.SetElectricityIndicatorState(true);
+                        continue;
+                    }
+
+                    workingBuildings.Add(building);
+                    localElectricity += consumption; // резервируем энергию
+                }
+
+                // 2. Списываем расходы
+                foreach (var building in workingBuildings)
+                {
+                    var expenses = building.baseData.upgradeLevels[building.currentLevel].expenses;
+                    TrySpendResources(expenses);
+                    electricityMain += building.GetElectricityConsumption();
+                }
+
+                // 3. Производим добычу
+                foreach (var building in workingBuildings)
+                {
+                    int amount = building.GetResourceAmountMainingPerCycle();
+                    ResourceData resource = building.GetResourceMaining();
+
+                    if (resource != null && amount > 0)
+                    {
+                        AddResource(resource, amount);
+                        Debug.Log($"{building.baseData.name} добыл {amount} {resource.name}");
+                    }
+
+                    building.OnDayEnd();
+                    building.SetElectricityIndicatorState(false);
                 }
 
                 CheckAllBuildingsOnMap();
@@ -128,66 +129,6 @@ public class ResourceManager : MonoBehaviour
                 Debug.LogError($"[DayCycle] Ошибка: {ex}");
             }
         }
-    }
-
-    public void SwitchContinent(ContinentData newContinent)
-    {
-        ClearResourceMaining();
-        UpdateElectricityShow();
-
-
-        if (newContinent == null)
-        {
-            Debug.LogWarning("SwitchContinent: newContinent is null");
-            return;
-        }
-
-        CurrentContinent = newContinent;
-        currentContinentId = newContinent.Id;
-
-        cameraController.SwitchRegion(CurrentContinent.newContinentPos, CurrentContinent.xLimits, CurrentContinent.zLimits);
-
-        // Если ещё не инициализирован словарь ресурсов
-        if (!resourceDictionary.ContainsKey(currentContinentId))
-        {
-            resourceDictionary[currentContinentId] = new Dictionary<ResourceData, int>();
-
-            string path = GetSavePathForCurrentContinent();
-            if (File.Exists(path))
-            {
-                LoadResources(); // Загружаем сохранения
-            }
-            else
-            {
-                // Инициализация стартовых ресурсов
-                if (newContinent.startingResources != null && newContinent.startingResources.Count > 0)
-                {
-                    foreach (var startRes in newContinent.startingResources)
-                    {
-                        if (startRes.resourceType != null)
-                            resourceDictionary[currentContinentId][startRes.resourceType] = startRes.amount;
-                    }
-                }
-                else
-                {
-                    foreach (var res in newContinent.resources)
-                    {
-                        resourceDictionary[currentContinentId][res] = 0;
-                    }
-                }
-
-                SaveResources(); // Сохраняем только если не было сохранений
-            }
-        }
-
-        // Здания материка
-        if (!continentBuildings.ContainsKey(currentContinentId))
-            continentBuildings[currentContinentId] = new List<BuildingInstance>();
-
-        currentContinentBuildings = continentBuildings[currentContinentId];
-
-        CheckAllBuildingsOnMap();
-        Debug.Log("Континент сменен");
     }
 
     public IEnumerator DayTimer()
@@ -231,16 +172,16 @@ public class ResourceManager : MonoBehaviour
 
         ClearResourceMaining();
 
-        if (currentContinentBuildings == null || currentContinentBuildings.Count == 0)
+        if (allBuildingsOnMap == null || allBuildingsOnMap.Count == 0)
         {
             UpdateElectricityShow();
             ClearResourceMaining();
 
-            Debug.Log("Пустой список зданий для текущего материка, обнуляем электроэнергию");
+            Debug.Log("Пустой список зданий, обнуляем электроэнергию");
             return;
         }
 
-        var buildingsSortedByEnergyPriority = currentContinentBuildings
+        var buildingsSortedByEnergyPriority = allBuildingsOnMap
             .Where(b => b != null)
             .Select(b => new { building = b, consumption = b.GetElectricityConsumption() })
             .OrderByDescending(b => b.consumption)
@@ -316,8 +257,8 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    private string GetSavePathForCurrentContinent() =>
-        Application.persistentDataPath + $"/resources_{currentContinentId}.json";
+    private string GetSavePath() =>
+        Application.persistentDataPath + "/resources_Main.json";
 
     public bool HasEnoughResources(List<ResourceCost> costs)
     {
@@ -382,12 +323,12 @@ public class ResourceManager : MonoBehaviour
         }
 
         string json = JsonUtility.ToJson(data);
-        File.WriteAllText(GetSavePathForCurrentContinent(), json);
+        File.WriteAllText(GetSavePath(), json);
     }
 
     public void LoadResources()
     {
-        string path = GetSavePathForCurrentContinent();
+        string path = GetSavePath();
 
         if (!File.Exists(path))
             return;
@@ -407,68 +348,33 @@ public class ResourceManager : MonoBehaviour
 
     public void DeleteResources()
     {
-        string directoryPath = Application.persistentDataPath;
-
-        if (!Directory.Exists(directoryPath))
-            return;
-
-        string[] resourceFiles = Directory.GetFiles(directoryPath, "resources_*.json");
-
-        foreach (string file in resourceFiles)
+        string path = GetSavePath();
+        if (File.Exists(path))
         {
-            try
-            {
-                File.Delete(file);
-                Debug.Log($"[ResourceManager] Удалён файл: {Path.GetFileName(file)}");
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"[ResourceManager] Ошибка при удалении файла {file}: {ex}");
-            }
+            File.Delete(path);
+            Debug.Log($"[ResourceManager] Удалён файл: {Path.GetFileName(path)}");
         }
 
-        resourceDictionary.Clear();
+        ActiveDict.Clear();
         resources.Clear();
 
         Debug.Log("[ResourceManager] Все ресурсы удалены");
     }
 
-
     public Dictionary<ResourceData, int> GetAllResources() => new(ActiveDict);
-    private Dictionary<ResourceData, int> ActiveDict => resourceDictionary.ContainsKey(currentContinentId) ? resourceDictionary[currentContinentId] : new Dictionary<ResourceData, int>();
 
     public void AddNewBuild(BuildingInstance build)
     {
         if (!allBuildingsOnMap.Contains(build))
             allBuildingsOnMap.Add(build);
 
-        if (!continentBuildings.ContainsKey(build.continentBuilded.Id))
-            continentBuildings[build.continentBuilded.Id] = new List<BuildingInstance>();
-
-        if (!continentBuildings[build.continentBuilded.Id].Contains(build))
-            continentBuildings[build.continentBuilded.Id].Add(build);
-
-        if (build.continentBuilded.Id == currentContinentId && !currentContinentBuildings.Contains(build))
-        {
-            currentContinentBuildings.Add(build);
-        }
-
         CheckAllBuildingsOnMap();
     }
-
 
     public void RemoveBuilding(BuildingInstance build)
     {
         allBuildingsOnMap.Remove(build);
-
-        if (continentBuildings.ContainsKey(build.continentBuilded.Id))
-            continentBuildings[build.continentBuilded.Id].Remove(build);
-
-        if (build.continentBuilded.Id == currentContinentId)
-        {
-            currentContinentBuildings.Remove(build);
-            CheckAllBuildingsOnMap();
-        }
+        CheckAllBuildingsOnMap();
     }
 
     public void SubtrElectricityConsumption(int buildElectricityConsumption)
