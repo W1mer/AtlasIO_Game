@@ -64,8 +64,8 @@ public class CameraController : MonoBehaviour
         Vector3 targetPos = transform.position + transform.TransformDirection(movement);
 
         // Ограничение по x и z
-        targetPos.x = Mathf.Clamp(targetPos.x, minX, maxX);
-        targetPos.z = Mathf.Clamp(targetPos.z, minZ, maxZ);
+        //targetPos.x = Mathf.Clamp(targetPos.x, minX, maxX);
+        //targetPos.z = Mathf.Clamp(targetPos.z, minZ, maxZ);
 
         transform.position = targetPos;
 
